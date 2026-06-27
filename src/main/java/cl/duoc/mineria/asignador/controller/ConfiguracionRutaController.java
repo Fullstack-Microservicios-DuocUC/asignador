@@ -1,5 +1,6 @@
 package cl.duoc.mineria.asignador.controller;
 
+import cl.duoc.mineria.asignador.model.ClasificacionMaterial;
 import cl.duoc.mineria.asignador.dto.ConfiguracionRutaResponseDTO;
 import cl.duoc.mineria.asignador.dto.RegistrarRutaDTO;
 import cl.duoc.mineria.asignador.mapper.ConfiguracionRutaMapper;
@@ -49,7 +50,7 @@ public class ConfiguracionRutaController {
     @GetMapping("/destino")
     public ResponseEntity<ConfiguracionRutaResponseDTO> determinarDestino(
             @RequestParam Long palaId,
-            @RequestParam String clasificacionMaterial) {
+            @RequestParam ClasificacionMaterial clasificacionMaterial) {
         
         ConfiguracionRuta rutaAsignada = configuracionRutaService.determinarDestino(palaId, clasificacionMaterial);
         return ResponseEntity.ok(configuracionRutaMapper.toDto(rutaAsignada));
@@ -63,7 +64,7 @@ public class ConfiguracionRutaController {
     @PatchMapping("/pala/{palaId}/falla")
     public ResponseEntity<ConfiguracionRutaResponseDTO> reportarFallaYRedistribuir(
             @PathVariable Long palaId,
-            @RequestParam String clasificacionMaterial) {
+            @RequestParam ClasificacionMaterial clasificacionMaterial) {
         
         ConfiguracionRuta nuevaRutaSugerida = configuracionRutaService.reportarFallaYRedistribuir(palaId, clasificacionMaterial);
         return ResponseEntity.ok(configuracionRutaMapper.toDto(nuevaRutaSugerida));

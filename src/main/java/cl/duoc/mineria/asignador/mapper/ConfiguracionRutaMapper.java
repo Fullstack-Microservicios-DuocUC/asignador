@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConfiguracionRutaMapper {
 
-    // 1. DTO -> Entidad
     public ConfiguracionRuta toEntity(RegistrarRutaDTO dto) {
         if (dto == null) {
             return null;
@@ -17,7 +16,7 @@ public class ConfiguracionRutaMapper {
 
         ConfiguracionRuta ruta = new ConfiguracionRuta();
         ruta.setPalaId(dto.getPalaId());
-        ruta.setClasificacionMaterial(dto.getClasificacionMaterial().toUpperCase());
+        ruta.setClasificacionMaterial(dto.getClasificacionMaterial());
         
         try {
             ruta.setDestinoAsignado(Destino.valueOf(dto.getDestinoAsignado().toUpperCase()));
@@ -29,7 +28,6 @@ public class ConfiguracionRutaMapper {
         return ruta;
     }
 
-    // 2. Entidad -> DTO 
     public ConfiguracionRutaResponseDTO toDto(ConfiguracionRuta entity) {
         if (entity == null) {
             return null;
@@ -38,9 +36,11 @@ public class ConfiguracionRutaMapper {
         ConfiguracionRutaResponseDTO dto = new ConfiguracionRutaResponseDTO();
         dto.setId(entity.getId());
         dto.setPalaId(entity.getPalaId());
-        dto.setClasificacionMaterial(entity.getClasificacionMaterial());
         
-        // Convertimos el Enum a String de forma limpia para el JSON
+        if (entity.getClasificacionMaterial() != null) {
+            dto.setClasificacionMaterial(entity.getClasificacionMaterial().name());
+        }
+        
         if (entity.getDestinoAsignado() != null) {
             dto.setDestinoAsignado(entity.getDestinoAsignado().name());
         }

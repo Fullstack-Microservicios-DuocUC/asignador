@@ -30,8 +30,9 @@ public class ConfiguracionRuta {
     private Long palaId; 
 
     // Ej: "Sulfuros", "Óxidos", "Estéril"
-    @Column(name = "clasificacion_material", nullable = false, length = 100)
-    private String clasificacionMaterial;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "clasificacion_material", nullable = false, length = 50)
+    private ClasificacionMaterial clasificacionMaterial;
 
     // Ej: "CHANCADO" o "RELAVES"
     @Enumerated(EnumType.STRING)

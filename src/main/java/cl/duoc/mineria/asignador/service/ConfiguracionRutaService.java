@@ -3,6 +3,7 @@ package cl.duoc.mineria.asignador.service;
 import cl.duoc.mineria.asignador.dto.RegistrarRutaDTO;
 import cl.duoc.mineria.asignador.exception.RutaNotFoundException;
 import cl.duoc.mineria.asignador.mapper.ConfiguracionRutaMapper;
+import cl.duoc.mineria.asignador.model.ClasificacionMaterial;
 import cl.duoc.mineria.asignador.model.ConfiguracionRuta;
 import cl.duoc.mineria.asignador.repository.ConfiguracionRutaRepository;
 import lombok.RequiredArgsConstructor;
@@ -39,8 +40,8 @@ public class ConfiguracionRutaService {
      * para saber si el material va a CHANCADO o RELAVES.
   */
     @Transactional(readOnly = true)
-    public ConfiguracionRuta determinarDestino(Long palaId, String clasificacionMaterial) {
-        return configuracionRutaRepository.findByPalaIdAndClasificacionMaterialAndRutaHabilitadaTrue(palaId, clasificacionMaterial.toUpperCase())
+    public ConfiguracionRuta determinarDestino(Long palaId, ClasificacionMaterial clasificacionMaterial) {
+        return configuracionRutaRepository.findByPalaIdAndClasificacionMaterialAndRutaHabilitadaTrue(palaId, clasificacionMaterial)
                 .orElseThrow(() -> new RutaNotFoundException("No se encontró una ruta habilitada para la Pala ID " + palaId + " y material " + clasificacionMaterial));
     }
 
@@ -50,23 +51,20 @@ public class ConfiguracionRutaService {
      * de esa pala y busca automáticamente una "pala vecina" que trabaje el mismo material.
   */
     @Transactional
-    public ConfiguracionRuta reportarFallaYRedistribuir(Long palaId, String clasificacionMaterial) {
+    public ConfiguracionRuta reportarFallaYRedistribuir(Long palaId, ClasificacionMaterial clasificacionMaterial) {
         
-        // 1. Buscamos todas las rutas de la pala descompuesta
         List<ConfiguracionRuta> rutasAfectadas = configuracionRutaRepository.findByPalaId(palaId);
         if (rutasAfectadas.isEmpty()) {
             throw new RutaNotFoundException("No existen rutas configuradas para la Pala ID " + palaId);
         }
         
-        // 2. Deshabilitamos sus rutas para que ningún camión autónomo sea enviado allí
         for (ConfiguracionRuta ruta : rutasAfectadas) {
             ruta.setRutaHabilitada(false);
         }
         configuracionRutaRepository.saveAll(rutasAfectadas);
 
-        // 3. REDISTRIBUCIÓN: Buscamos una pala vecina que esté habilitada y mueva el mismo material
         List<ConfiguracionRuta> palasVecinas = configuracionRutaRepository
-                .findByClasificacionMaterialAndRutaHabilitadaTrueAndPalaIdNot(clasificacionMaterial.toUpperCase(), palaId);
+                .findByClasificacionMaterialAndRutaHabilitadaTrueAndPalaIdNot(clasificacionMaterial, palaId);
         
         if (palasVecinas.isEmpty()) {
             throw new RutaNotFoundException(
